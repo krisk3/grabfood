@@ -23,23 +23,39 @@ headers = {
     'x-recaptcha-token': '03AL8dmw8QXz3FwnHjUpJ8IaGW1uf_EHknB69AS0t9TuszjUl2AdfrOr6hwnalWauNgCnz8_wi_jajRluSQJ1RzQwvfQa4J97syzLClJxwiK6bTWbpUrvJbdVCtc2Unk5sMhuUOaIBJAYXAMiuFerPJxsAeiQafZIZto9940J75gQEtqLrsLn7D5u11sdplJOBQLxkvtv5La0arpTqpT296A7tDo8mMJ9ZYr1GHGUX-tzIWwO3_6U18Bx9CgUP4BoKr1qsFY0MBlA3kN-ubLW5jBpbFFivEI2B3kzVeDaAqOa81LOcI8uq5466JPxVS_iTnfuvkrvMNCIYInlFPdTwXyKJYKVHyLWqymA-zFvF2DlhaeZ5y0tixxdapoBQwYjTfott7CAua7unHZAbr2Stv0kwLSI0vpYLvxXucCtVHVkCjMNyJ3EzzJ1NuaAVvU3I_6uAp4kpfqHO3wvfddfk1PVC9x1FvixkAbYThgqxisa1bPlITEc__I5Y-mB4nmihklCGlb5y577ThNTJtxZo_-wkAZUFAw1XaGMhUxM9PWtyXVqE7CklV4o',
 }
 
-json_data = {
-    'latlng': '14.514129098091843,120.98080039623011',
-    'keyword': '',
-    'offset': 0,
-    'pageSize': 32,
-    'countryCode': 'PH',
-}
 
+json_data = {
+        'latlng': '14.514129098091843,120.98080039623011',
+        'keyword': '',
+        'offset': 0,
+        'pageSize': 32,
+        'countryCode': 'PH',
+    }
 response = requests.post('https://portal.grab.com/foodweb/v2/search', headers=headers, json=json_data).json()
+no_of_res = response['searchResult']['totalCount']
+no_of_res = int((no_of_res/32)+1)
+
+j = 0
 data = []
-for merchant in response['searchResult']['searchMerchants']:
-    res_dict = {}
-    res_name = merchant['address']['name']
-    res_dict['Restaurant Name'] = re.sub(r'\[.*?\]', '', res_name)
-    res_dict['Latitude'] = merchant['latlng']['latitude']
-    res_dict['Longitude'] = merchant['latlng']['longitude']
-    data.append(res_dict)
+for i in range(no_of_res):
+    json_data = {
+        'latlng': '14.514129098091843,120.98080039623011',
+        'keyword': '',
+        'offset': j,
+        'pageSize': 32,
+        'countryCode': 'PH',
+    }
+
+    response = requests.post('https://portal.grab.com/foodweb/v2/search', headers=headers, json=json_data).json()
+    for merchant in response['searchResult']['searchMerchants']:
+        res_dict = {}
+        res_name = merchant['address']['name']
+        res_dict['Restaurant Name'] = re.sub(r'\[.*?\]', '', res_name)
+        res_dict['Latitude'] = merchant['latlng']['latitude']
+        res_dict['Longitude'] = merchant['latlng']['longitude']
+        data.append(res_dict)
+        
+    j += 32
     
 df = pd.DataFrame(data)
 df.to_csv('GrabFood.xls', index=False)
