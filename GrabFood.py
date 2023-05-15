@@ -54,8 +54,8 @@ for i in range(no_of_res):
         res_dict['Latitude'] = merchant['latlng']['latitude']
         res_dict['Longitude'] = merchant['latlng']['longitude']
         data.append(res_dict)
-        
+
     j += 32
-    
+
 df = pd.DataFrame(data)
-df.to_csv('GrabFood.xls', index=False)
+df.to_csv('GrabFood.xlsx', index=False)
